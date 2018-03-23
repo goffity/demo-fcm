@@ -2,8 +2,11 @@ package com.goffity.demo.fcm.push.controllers;
 
 import com.goffity.demo.fcm.push.service.AndroidPushNotificationsService;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,8 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 public class WebController {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebController.class);
     String TOPIC = "Goffity-topic";
 
     @Autowired
@@ -25,22 +30,19 @@ public class WebController {
     @RequestMapping(value = "/send", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> send() throws JSONException {
 
-        JSONObject body = new JSONObject();
-        body.put("to", "/topics/" + TOPIC);
-        body.put("priority", "high");
-
         JSONObject notification = new JSONObject();
         notification.put("title", "JSA Notification");
         notification.put("body", "Happy Message!");
 
-        JSONObject data = new JSONObject();
-        data.put("Key-1", "JSA Data 1");
-        data.put("Key-2", "JSA Data 2");
+        JSONObject message = new JSONObject();
 
-        body.put("notification", notification);
-        body.put("data", data);
+        message.put("to", "fDROMn3hUNU:APA91bE206dsHFvfV_U2MmG43hOe6v887bQlqWNmY1LjDiYFL_2NTp8xH2U84hNCuWbUbLq3P7p6C8EJ0mO0Sx5M6O58LUPqOkeIJjOC4EWqt-0zVmUGUPhXOuBHvaQN5XOFZUPyrwXX");
+        message.put("notification", notification);
+        message.put("picture", "http://opsbug.com/static/google-io.jpg");
 
-        HttpEntity<String> request = new HttpEntity<>(body.toString());
+        logger.debug("Body: " + message.toString());
+
+        HttpEntity<String> request = new HttpEntity<>(message.toString());
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
         CompletableFuture.allOf(pushNotification).join();
